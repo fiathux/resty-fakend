@@ -1606,7 +1606,7 @@ def p_root(p):
     if not pobj.is_dir():
         common_warn("\"%s\" is not a avaliable path for scaner" % p)
         return []
-    PENV.add_layer_scan("base", pobj)
+    PENV.add_layer_dir("base", pobj)
     return []
 
 # containers directory

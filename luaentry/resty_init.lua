@@ -87,10 +87,10 @@ add_installer(function(genv)    -- init
         -- load mongo DB config
         pub.qje = _f.foreach(function (r, k)
             r["db_" .. k] = create_mgodb_factory(
-                _xconf.DB["mgo_"..k.."_URL"], inner)
+                _xconf.DB["mgo_"..k.."_URI"], inner)
             return r
         end, pub.qje, _f.filter(_f.keys, function(s)
-            return s:match("^mgo_([a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9])_URL$")
+            return s:match("^mgo_([a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9])_URI$")
         end))(_xconf.DB or {})
 
         -- clean
@@ -137,7 +137,7 @@ add_installer(function(genv) -- init
         -- load common redis cache
         pub.qje = _f.foreach(function (r, k)
             r["cache_" .. k] = create_redis_factory_ex(
-                _xconf.DB["rds_"..k.."_conf"], inner)
+                _xconf.Cache["rds_"..k.."_conf"], inner)
             return r
         end, pub.qje, _f.filter(_f.keys, function(s)
             return s:match("^rds_([a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9])_conf$")

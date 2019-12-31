@@ -1,0 +1,17 @@
+# qje.mongol sub-project
+
+#layer=base
+
+# package download path
+package_url = https://gitlab.droi.cn/frame/mongol.git
+#source_type = tar.gz
+#release_dir = project
+
+build_distance = mongol/qje
+install_prefix = lualib/framework/qje
+
+# (optional) build script and support file
+# build script must set to first item
+#build_scripts =
+#  qje.mongol.support/build
+

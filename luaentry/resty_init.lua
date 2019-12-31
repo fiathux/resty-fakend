@@ -84,15 +84,14 @@ add_installer(function(genv)    -- init
 
     -- access
     return function(pub, inner)
-        -- init task database factory
-        pub.qje.db_task = create_mgodb_factory(
-            _xconf.DB.mgo_task_URI, inner)
-        -- init finance database factory
-        pub.qje.db_finance = create_mgodb_factory(
-            _xconf.DB.mgo_finance_URI, inner)
-        -- init config database factory
-        pub.qje.db_taskconf = create_mgodb_factory(
-            _xconf.DB.mgo_taskconf_URI, inner)
+        -- load mongo DB config
+        pub.qje = _f.foreach(function (r, k)
+            r["db_" .. k] = create_mgodb_factory(
+                _xconf.DB["mgo_"..k.."_URL"], inner)
+            return r
+        end, pub.qje, _f.filter(_f.keys, function(s)
+            return s:match("^mgo_([a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9])_URL$")
+        end))(_xconf.DB or {})
 
         -- clean
         return function(pub, inner)
@@ -135,9 +134,14 @@ add_installer(function(genv) -- init
 
     -- access
     return function(pub, inner)
-        -- common redis cache
-        pub.qje.cache_common = create_redis_factory_ex(
-            _xconf.Cache.rds_common_conf, inner)
+        -- load common redis cache
+        pub.qje = _f.foreach(function (r, k)
+            r["cache_" .. k] = create_redis_factory_ex(
+                _xconf.DB["rds_"..k.."_conf"], inner)
+            return r
+        end, pub.qje, _f.filter(_f.keys, function(s)
+            return s:match("^rds_([a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9])_conf$")
+        end))(_xconf.Cache or {})
 
         -- clean
         return function(pub, inner)
@@ -201,6 +205,9 @@ end)()
 
 -- BaaS legacy client and admin API
 add_installer(function(genv) -- init
+    if not _xconf.BaaSLegacy then
+        return nil
+    end
     local _baas_req = require("baas")
     -- general baas require
     genv._baas = _baas_req.create(_xconf.BaaSLegacy)

@@ -1933,8 +1933,10 @@ def main():
             return
         write_makefile()
         write_imgscript()
-    except Exception as e:
+    except ScanExistsError as e:
         common_error(str(e))
+    except Exception as e:
+        common_error(e)
         #raise e
 
 main()

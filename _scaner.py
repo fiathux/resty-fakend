@@ -47,7 +47,9 @@ def common_warn(s):
 
 class ConfigError(Exception):pass
 class ScanError(Exception):pass
-class ScanExistsError(ScanError):pass
+class ScanExistsError(ScanError):
+    def __str__(me):
+        return "file \"%s\" already exists" % me.args[0]
 
 # parse defined{{{
 # variable line parse
@@ -411,7 +413,7 @@ class MakefileSupport(object):
             if ovl and ovl in me.overlaps:
                 olditm = me.overlaps[ovl]
                 if olditm.layer != "base" or sitm.layer == "base":
-                    raise ScanExistsError()
+                    raise ScanExistsError(sitm)
             # append or replace item
             if sitm.comment and (not ovl or ovl not in me.overlaps):
                 me.comment.append(sitm.comment)
@@ -478,7 +480,7 @@ class MakefileSupport(object):
         def add(me, layer, distdir):
             if distdir in me._dir and \
                     (me._dir[distdir] != "base" or layer == "base"):
-                raise ScanExistsError()
+                raise ScanExistsError(distdir)
             me._dir[distdir] = layer
 
         # add a depend target
@@ -525,7 +527,7 @@ class MakefileSupport(object):
             if value.target in me.__targets:
                 existobj = me.__targets[value.target]
                 if existobj.layer != "base":
-                    raise ScanExistsError()
+                    raise ScanExistsError(value.target)
                 if value.layer == "base": # skip
                     return
             me.__targets[value.target] = MakefileSupport.MkItem(value)

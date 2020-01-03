@@ -1934,7 +1934,7 @@ def main():
         write_makefile()
         write_imgscript()
     except Exception as e:
-        common_error(e)
+        common_error(str(e))
         #raise e
 
 main()

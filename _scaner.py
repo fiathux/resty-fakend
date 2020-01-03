@@ -591,6 +591,7 @@ class MakefileSupport(object):
         me.default = me._mk_default(env)    # default make target
         me.common = []                      # common targets
         me.temptrg = []                     # temporary target
+        me.additclean = []                  # addit clean list
         me.layerpath = me._layer_path(env)  # layers path reference
         me._source_import(env)
         # append container target
@@ -601,7 +602,7 @@ class MakefileSupport(object):
         me.add_common(me._mk_distdir(env.temp_path), "temp directory")
         me.add_common(me._mk_clean(env.debug_path), "clean debug path")
         me.add_common(me._mk_renew(env.debug_path), "renew debug path")
-        me.add_common(me._mk_fullclean(env), "full clean")
+        me.add_common(me._mk_fullclean(env, me.additclean), "full clean")
         if "pre_build" in env:
             me.add_common(me._mk_prebuild(env["pre_build"]),
                     "pre-build operations")
@@ -840,7 +841,7 @@ class MakefileSupport(object):
         ))
 
     # full clean distance
-    def _mk_fullclean(me, env):
+    def _mk_fullclean(me, env, addcln):
         def cmd_gen(d, tmp):
             cmd = [
                 "rm -rf %s" % d.joinpath(env.debug_path),
@@ -851,6 +852,10 @@ class MakefileSupport(object):
                     cmd.append("rm -rf %s" % \
                             d.joinpath(env.container).joinpath(l).\
                             joinpath(env.dist_path))
+            # addit project clean commands
+            for ac in addcln:
+                for c in ac(d, tmp):
+                    cmd.append(c)
             return cmd
         return me.MkItem(me.ScannerItem(
             None, None, "fullclean",
@@ -1023,6 +1028,8 @@ class MakefileSupport(object):
                 me.dist[ss].add(distitem)
         else:
             me.dist[itm.layer].add(distitem)
+        if projobj.support_clean():
+            me.additclean.append(lambda d, tmp: projobj.clean_iter())
     #}}}
 
 # download package parse and makefile support{{{
@@ -1288,6 +1295,14 @@ class SubProjSupport(object):
         else:
             exe_cmd = cfg["build_exec"]
         me.exe_cmd = [path.joinpath(bdscr) for bdscr in exe_cmd]
+        if "clean_exec" in cfg:
+            if type(cfg["clean_exec"]) == str:
+                exe_cmd = [cfg["clean_exec"]]
+            else:
+                exe_cmd = cfg["clean_exec"]
+            me.clean_cmd = [path.joinpath(bdscr) for bdscr in exe_cmd]
+        else:
+            me.clean_cmd = []
         me._files = list(me.iter_depend(cfg["sources"], path))
         me.upd_env()
 
@@ -1322,6 +1337,16 @@ class SubProjSupport(object):
                     str(me.basepath), reldist, scr)
         yield "echo package-proj install at `date`>%s" % \
                 str(dist_path.joinpath(dist_file))
+
+    # check sub-project supported clean command
+    def support_clean(me):
+        return (me.clean_cmd and True) or False
+
+    # clean command
+    def clean_iter(me):
+        for cmd in me.clean_cmd:
+            scr = cmd.relative_to(me.basepath)
+            yield "cd %s && %s" % (str(me.basepath), scr)
 
     # to string
     def __str__(me):

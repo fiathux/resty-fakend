@@ -1534,7 +1534,7 @@ class ImgtoolSupport(object):
             yield "  echo \"  debug new         create debug container, run immeditly\""
             yield "  echo \"  debug start       start and attach to debug container\""
             yield "  echo \"  debug stop        manually stop debug container\""
-            yield "  echo \"  debug rm          remove debug container\""
+            yield "  echo \"  debug remove      remove debug container\""
             yield "  echo \"\""
             yield "}"
         return "\n".join(cmd_talker())

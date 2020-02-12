@@ -1407,7 +1407,7 @@ class ImgtoolSupport(object):
     # script head
     def _gen_head(me):
         return "\n".join((
-            "#!/bin/sh",
+            "#!/bin/bash",
             "# create at %s" % time.strftime(
                 "%h %d, %Y %H:%M:%S UTC",time.gmtime()),
             "# _scaner.py automation",

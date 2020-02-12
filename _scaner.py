@@ -1560,7 +1560,7 @@ class ImgtoolSupport(object):
         def main_selector():
             if me._remote:
                 yield "# check remote enable"
-                yield "if [ $1 == \"-r\" ]"
+                yield "if [ \"$1\" == \"-r\" ]"
                 yield "then"
                 yield "  enable_remote"
                 yield "  command_selector $2 $3"
